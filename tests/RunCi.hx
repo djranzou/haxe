@@ -493,7 +493,10 @@ class RunCi {
 		runCommand("pip", ["install", "--user", "cpp-coveralls"]);
 		runCommand("luarocks", ["install", "luafilesystem", "1.6.3-2", "--server=https://luarocks.org/dev"]);
 		runCommand("luarocks", ["install", "lrexlib-pcre", "2.7.2-1", "--server=https://luarocks.org/dev"]);
-		runCommand("luarocks", ["install", "luautf8", "--server=https://luarocks.org/dev"]);
+		runCommand("luarocks", ["install", "luv", "1.9.1-0", "--server=https://luarocks.org/dev"]);
+		runCommand("luarocks", ["install", "luasocket", "3.0rc1-2", "--server=https://luarocks.org/dev"]);
+		runCommand("luarocks", ["install", "lpath", "0.1.0-1", "--server=https://luarocks.org/dev"]);
+		runCommand("luarocks", ["install", "environ", "0.1.0-1", "--server=https://luarocks.org/dev"]);
 
 		// we did user land installs of luarocks and lua.  We need to point lua
 		// to the luarocks install using the luarocks path and env variables
@@ -506,8 +509,6 @@ class RunCi {
 		Sys.putEnv("LUA_CPATH", lua_cpath);
 		trace(lua_cpath + " is the value for lua_cpath");
 
-		// change back to the unit dir for the rest of the tests
-		changeDirectory(unitDir);
 	}
 
 	static function getCsDependencies() {
@@ -885,8 +886,14 @@ class RunCi {
 						}
 					case Lua:
 						getLuaDependencies();
+
+						changeDirectory(unitDir);
 						runCommand("haxe", ["compile-lua.hxml"].concat(args));
 						runCommand("lua", ["bin/unit.lua"]);
+
+						changeDirectory(sysDir);
+						runCommand("haxe", ["compile-lua.hxml"].concat(args));
+						runCommand("lua", ["bin/lua/sys.lua"]);
 					case Cpp:
 						getCppDependencies();
 						getSpodDependencies();
